@@ -1,40 +1,41 @@
-package com.example.budgie.core.data
+package com.dbrett.budgie.core.data.source.local
 
-import java.time.Instant
-import androidx.room.TypeConverter
+import androidx.room3.ColumnTypeConverter
 import java.math.BigDecimal
+import kotlin.time.Instant
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
 @OptIn(ExperimentalUuidApi::class)
 class Converters {
-    @TypeConverter
+    @ColumnTypeConverter
     fun fromTimestamp(value : Long?) : Instant? {
-        return value?.let { Instant.ofEpochMilli(it) }
+        return value?.let { Instant.fromEpochSeconds(it) }
     }
 
-    @TypeConverter
+    @ColumnTypeConverter
     fun instantToTimestamp(instant : Instant?) : Long? {
-        return instant?.toEpochMilli()
+        return instant?.epochSeconds
     }
 
-    @TypeConverter
+    @ColumnTypeConverter
     fun stringToBigDecimal(value : String?) : BigDecimal? {
         return value?.let { BigDecimal(it) }
     }
 
-    @TypeConverter
+    @ColumnTypeConverter
     fun bigDecimalToString(value : BigDecimal?) : String? {
         return value?.toPlainString()
     }
 
-    @TypeConverter
+    @ColumnTypeConverter
     fun stringToUUID(value : String?) : Uuid? {
-        return value?.let { Uuid.parse(it) }
+        return value?.let { Uuid.Companion.parse(it) }
     }
 
-    @TypeConverter
+    @ColumnTypeConverter
     fun uuidToString(value : Uuid?) : String? {
         return value.toString()
     }
+
 }

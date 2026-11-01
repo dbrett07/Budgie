@@ -1,4 +1,4 @@
-package com.example.budgie.core.data.source.notifications
+package com.dbrett.budgie.core.data.source.notifications
 
 import android.app.Notification
 import android.service.notification.NotificationListenerService
@@ -10,11 +10,11 @@ import kotlinx.coroutines.launch
 
 import java.util.concurrent.ConcurrentHashMap
 
-import com.example.budgie.core.data.source.local.LocalTransactionDataSource
-import com.example.budgie.core.data.source.local.TransactionEntity
+import com.dbrett.budgie.core.data.source.local.LocalTransactionDataSourceImpl
+import com.dbrett.budgie.core.data.source.local.entity.TransactionEntity
 
 class GooglePayListener : NotificationListenerService()  {
-    lateinit var localDataSource : LocalTransactionDataSource
+    lateinit var localDataSource : LocalTransactionDataSourceImpl
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private val GPAYGLOBAL = "com.google.android.apps.walletnfcrel"
     private val GPAYINDIA = "com.google.android.apps.nbu.paisa.user"
@@ -37,6 +37,7 @@ class GooglePayListener : NotificationListenerService()  {
 
         val notificationKey = statusBarNotification.key
         val postTime = statusBarNotification.postTime
+        val title = statusBarNotification.notification.extras.getCharSequence(Notification.EXTRA_TITLE).toString()
 
         if (processedNotifications.containsKey(notificationKey)) return
         processedNotifications[notificationKey] = postTime
@@ -55,7 +56,7 @@ class GooglePayListener : NotificationListenerService()  {
         }
 
         if (rawPayload.isBlank()) return
-        val transInfo : TransactionEntity = NotificationParser.parse(postTime, rawPayload)
+        val transInfo : TransactionEntity = NotificationParser.parse(postTime, title, rawPayload)
 
         serviceScope.launch {
             localDataSource.saveTransaction(transInfo)
